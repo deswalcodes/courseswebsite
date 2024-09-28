@@ -1,5 +1,6 @@
+require('dotenv').config()
 const mongoose = require('mongoose');
-mongoose.connect("mongodb+srv://21cs2014:PjqThuLa8aIQYfhg@cluster0.x4o0n.mongodb.net/courses-database")
+mongoose.connect("process.env.MONGO_URL")
 const Schema = mongoose.Schema;
 const ObjectId = Schema.ObjectId;
 

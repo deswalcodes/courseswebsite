@@ -1,12 +1,15 @@
+require('dotenv').config()
+
 const express = require('express');
 const Router = express.Router;
 const adminRouter = Router();
 
-const {adminModel} = require('../db');
+const {adminModel, courseModel} = require('../db');
 const jwt = require('jsonwebtoken');
-const JWT_SECRET_ADMIN = 'djvbsdhkbvksjdjhs'
+const {JWT_SECRET_ADMIN } = require('../config')
 const bcrypt = require('bcrypt');
 const { z } =require('zod');
+const { adminMiddleware } = require('../middleware/admin.js')
 
 adminRouter.post('/signup',async function(req,res){
     
@@ -84,16 +87,55 @@ adminRouter.post('/signin',async function(req,res){
 
 });
 
-adminRouter.post('/course',function(req,res){
+adminRouter.post('/course',adminMiddleware,async function(req,res){
+    const adminId = req.userId;
+    const {title,description,imageURL,price} = req.body;
+    const course = await adminModel.create({
+        title,
+        description,
+        imageURL,
+        price,
+        creatorId : adminId
+
+    });
+    res.json({
+        message : "course created",
+        courseId : course._id
+    })
+
+
 
 
 });
 
-adminRouter.put('/course',function(req,res){
+adminRouter.put('/course',adminMiddleware,async function(req,res){
+    const adminId = req.userId;
+    const { title,description,imageURL,price,courseId } = req.body;
+    const course = await courseModel.update({
+        _id : courseId,
+        creatorId : adminId
+
+    },{
+        title : title,
+        description : description,
+        imageURL : imageURL,
+        price : price
+    })
+
+
 
 });
 
-adminRouter.get('/bulk',function(req,res){
+adminRouter.get('/bulk',adminMiddleware,async function(req,res){
+    const adminId =req.userId;
+    const courses = await courseModel.find({
+        creatorId : adminId
+    })
+    res.json({
+        courses
+        
+    })
+
 
 });
 

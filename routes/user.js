@@ -1,12 +1,15 @@
+require('dotenv').config()
+
 const express = require('express');
 const { z } = require('zod');
 const Router = express.Router;
 const bcrypt = require('bcrypt');
 const userRouter = Router();
+const { userMiddleware } = require('../middleware/user.js')
 
-const {userModel}  = require('../db');
+const {userModel, purchaseModel, courseModel}  = require('../db');
 const jwt = require('jsonwebtoken')
-const JWT_SECRET_USER = 'sdahgcdhfcg'
+const {JWT_SECRET_USER} = require('../config.js')
 
 
 
@@ -86,7 +89,21 @@ userRouter.post('/signin',async function(req,res){
 })
 
 
-userRouter.get('/purchases',function(req,res){
+userRouter.get('/purchases',userMiddleware,async function(req,res){
+    const userId = req.userId;
+    const purchases = await purchaseModel.find({
+        userId
+    });
+
+    const coursesData = await courseModel.find({
+        _id : {$in : purchases.map(x => x.courseId)}
+    });
+    res.json({
+        purchases,
+        coursesData
+    });
+
+
     
 });
 
