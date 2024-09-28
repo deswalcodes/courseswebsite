@@ -7,7 +7,7 @@ const bcrypt = require('bcrypt');
 const userRouter = Router();
 const { userMiddleware } = require('../middleware/user.js')
 
-const {userModel, purchaseModel, courseModel}  = require('../db');
+const {userModel}  = require('../db');
 const jwt = require('jsonwebtoken')
 const {JWT_SECRET_USER} = require('../config.js')
 
@@ -91,17 +91,11 @@ userRouter.post('/signin',async function(req,res){
 
 userRouter.get('/purchases',userMiddleware,async function(req,res){
     const userId = req.userId;
-    const purchases = await purchaseModel.find({
-        userId
-    });
-
-    const coursesData = await courseModel.find({
-        _id : {$in : purchases.map(x => x.courseId)}
-    });
+    const response = await userModel.findById(userId).populate('purchasedCourses');
     res.json({
-        purchases,
-        coursesData
-    });
+        purchases : response.purchasedCourses
+    })
+
 
 
     
