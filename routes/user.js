@@ -87,9 +87,57 @@ userRouter.post('/signin',async function(req,res){
     }
 
 })
+userRouter.post('/purchase',userMiddleware,async function(req,res){
+    const userId = req.userId;
+    const courseId  = req.body.courseId;
+    try{
+        const response = await userModel.findOneAndUpdate({
+            _id : userId
+        },{
+            $addToSet : {
+                purchasedCourses : {
+                    courseId : courseId,
+                    status : false
+                }
+                
+            }
+        },{new : true})
+        if(!response){
+            return res.status(400).json({
+                message : "course not found"
+            })
+        }
+        res.status(200).json({
+            message : "purchase successfull"
+        })
+    }
+    catch(err){
+        res.status(500).json({
+            message : "error accessing the database"
+        })
+    }
+})
+userRouter.post('/statuschange',userMiddleware,async function(req,res){
+    const userId = req.userId;
+    const courseId = req.body;
+    try{
+        const response = await userModel.findOneAndUpdate({
+            _id : userId,
+            'purchasedCourses.courseId' : courseId
+        },{
+            $set : {
+                'purchasedCourses.$.status' : true
+            }
+        },{new : true})
+    }
+    catch(err){
+        res.status(500).json({
+            message : "error accessing the database"
+        })
+    }
+})
 
-
-userRouter.get('/purchases',userMiddleware,async function(req,res){
+userRouter.get('/purchases/preview',userMiddleware,async function(req,res){
     const userId = req.userId;
     const response = await userModel.findById(userId).populate('purchasedCourses');
     res.json({

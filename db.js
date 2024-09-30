@@ -8,7 +8,10 @@ const userSchema = new Schema({
     name : String,
     email : {type : String,unique : true},
     password : String,
-    purchasedCourses : { type : mongoose.Schema.Types.ObjectId , ref : 'course'}
+    purchasedCourses : [{
+        courseId : {type : ObjectId,ref : 'course'},
+        status : {type :Boolean,default : false}
+    }]
 })
 const adminSchema  = new Schema({
     name : String,
