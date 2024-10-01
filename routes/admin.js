@@ -9,7 +9,8 @@ const jwt = require('jsonwebtoken');
 const {JWT_SECRET_ADMIN } = require('../config')
 const bcrypt = require('bcrypt');
 const { z } =require('zod');
-const { adminMiddleware } = require('../middleware/admin.js')
+const { adminMiddleware } = require('../middleware/admin.js');
+const admin = require('../middleware/admin.js');
 
 adminRouter.post('/signup',async function(req,res){
     
@@ -95,7 +96,8 @@ adminRouter.post('/course',adminMiddleware,async function(req,res){
         description,
         imageURL,
         price,
-        creatorId : adminId
+        creatorId : adminId,
+        
 
     });
     res.json({
@@ -126,18 +128,72 @@ adminRouter.put('/course',adminMiddleware,async function(req,res){
 
 });
 
-adminRouter.get('/bulk',adminMiddleware,async function(req,res){
-    const adminId =req.userId;
+adminRouter.get('/activecourses',adminMiddleware,async function(req,res){
+    const adminId =req.adminId;
     const courses = await courseModel.find({
-        creatorId : adminId
+        creatorId : adminId,
+        archive : false
     })
     res.json({
         courses
         
-    })
+    });
+
 
 
 });
+adminRouter.post('/archive',adminMiddleware,async function(req,res){
+    const adminId = req.adminId;
+    const courseId = req.body.courseId;
+    try{
+        const response = await courseModel.findOneAndUpdate({
+            creatorId : adminId,
+            _id : courseId
+        },{
+            $set : {
+                archive : true
+            }
+        },{new : true});
+        if(!response){
+            res.status(400).json({
+                message : "course not found"
+            })
+        }
+        
+    
+    }
+    catch(err){
+        res.status(500).json({
+            message : "error accessing the database"
+        })
+    }
+})
+
+
+adminRouter.get('/archivedcourses',adminMiddleware,async function(req,res){
+    const adminId = req.adminId;
+    try{
+        const courses = await courseModel.find({
+            creatorId : adminId,
+            archive : true
+        });
+        if(courses.length === 0){
+            return res.json({
+                message : "no archived courses found"
+            })
+        }
+        res.status(200).json({
+            Archived_Courses : courses
+        })
+
+    }
+    catch(err){
+        res.status(500).json({
+            message : "error accessing the database"
+        })
+    }
+})
+
 
 
 

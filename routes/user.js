@@ -7,7 +7,7 @@ const bcrypt = require('bcrypt');
 const userRouter = Router();
 const { userMiddleware } = require('../middleware/user.js')
 
-const {userModel}  = require('../db');
+const {userModel, courseModel}  = require('../db');
 const jwt = require('jsonwebtoken')
 const {JWT_SECRET_USER} = require('../config.js')
 
@@ -100,6 +100,7 @@ userRouter.post('/purchase',userMiddleware,async function(req,res){
                     status : false
                 }
                 
+                
             }
         },{new : true})
         if(!response){
@@ -148,6 +149,14 @@ userRouter.get('/purchases/preview',userMiddleware,async function(req,res){
 
     
 });
+userRouter.get('/allcourses',async function(req,res){
+    const response = await courseModel.find({
+        archive : false
+    });
+    res.json({
+        ActiveCourses : response
+    })
+})
 
 module.exports = {
     userRouter : userRouter

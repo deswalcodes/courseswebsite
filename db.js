@@ -24,7 +24,8 @@ const courseSchema = new Schema({
     description : String,
     price  : Number,
     imageURL : String,
-    creatorId : ObjectId
+    creatorId : ObjectId,
+    archive : {type : Boolean ,default : false}
 
 
 })
