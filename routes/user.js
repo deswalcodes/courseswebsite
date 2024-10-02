@@ -9,7 +9,8 @@ const { userMiddleware } = require('../middleware/user.js')
 
 const {userModel, courseModel}  = require('../db');
 const jwt = require('jsonwebtoken')
-const {JWT_SECRET_USER} = require('../config.js')
+const {JWT_SECRET_USER} = require('../config.js');
+const user = require('../middleware/user.js');
 
 
 
@@ -158,6 +159,52 @@ userRouter.get('/allcourses',async function(req,res){
     })
 })
 
+userRouter.get('/productivity',userMiddleware,async function(req,res){
+    const userId = req.userId;
+    try{
+        const response = await userModel.aggregate([
+            {$match : {_id : userId}},
+            {
+                $project : {
+                    completeCount : {
+                        $size : {
+                            $filter : {
+                                input : '$purchasedCourses',
+                                as : 'course',
+                                cond : {$eq : ['$$course.status',true]}
+                            }
+                        }
+                    },
+                    notComplete : {
+                        $size : {
+                            $filter : {
+                                input : '$purchasedCourses',
+                                as : 'course',
+                                cond : {$eq : ['$$course.status',false]}
+                            }
+                        }
+                    }
+                
+                }
+            }
+           ]);
+           
+           if(response.length > 0){
+            const completed = response[0].completeCount;
+            const notCompleted = response[0].notComplete;
+            const UserProductivity = (completed/(completed + notCompleted))*100
+           };
+           res.status(200).json({
+            Productivity : UserProductivity
+           })
+           
+    }
+    catch(err){
+        res.status(500).json({
+            message : 'error accessing the database'
+        })
+    }
+})
 module.exports = {
     userRouter : userRouter
 }
