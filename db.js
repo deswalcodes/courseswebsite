@@ -10,7 +10,8 @@ const userSchema = new Schema({
     password : String,
     purchasedCourses : [{
         courseId : {type : ObjectId,ref : 'course'},
-        status : {type :Boolean,default : false}
+        status : {type :Boolean,default : false},
+        buyingTime : {type : Date , default : Date.now()}
     }]
 })
 const adminSchema  = new Schema({
