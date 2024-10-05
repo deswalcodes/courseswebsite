@@ -11,7 +11,7 @@ const userSchema = new Schema({
     purchasedCourses : [{
         courseId : {type : ObjectId,ref : 'course'},
         status : {type :Boolean,default : false},
-        buyingTime : {type : Date , default : Date.now()}
+        buyingTime : {type : Date , default : new Date()}
     }]
 })
 const adminSchema  = new Schema({
