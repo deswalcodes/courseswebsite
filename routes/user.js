@@ -97,8 +97,8 @@ userRouter.post('/purchase',userMiddleware,async function(req,res){
         },{
             $addToSet : {
                 purchasedCourses : {
-                    courseId : courseId,
-                    status : false
+                    courseId : courseId
+                    
                 }
                 
                 
