@@ -195,7 +195,7 @@ userRouter.get('/productivity',userMiddleware,async function(req,res){
             const UserProductivity = (completed/(completed + notCompleted))*100
            };
            res.status(200).json({
-            Productivity : UserProductivity
+            User_Productivity : UserProductivity
            })
            
     }
@@ -205,6 +205,7 @@ userRouter.get('/productivity',userMiddleware,async function(req,res){
         })
     }
 })
+
 module.exports = {
     userRouter : userRouter
 }
